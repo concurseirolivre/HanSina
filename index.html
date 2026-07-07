@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>HanSina — Triagem de hanseníase</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --purple:#7C1466; --purple-2:#8E2179; --purple-deep:#5C0E4C;
+    --lav:#DBA7E4; --lav-2:#E7C4EC;
+    --card:#FCF4E4; --card-hi:#F6E7C2; --white:#fff;
+    --coral:#EC8A82; --coral-2:#F3A59E;
+    --ink:#4A1030; --body:#6E4256; --muted:#9C7A88;
+    --line:#EADFC4; --line-w:#EBD9C0;
+    --verde:#3B9E68; --verde-bg:#E5F1E8; --amarelo:#D69A2E; --amarelo-bg:#F7EBCF;
+    --vermelho:#D2513F; --vermelho-bg:#F7DFD8;
+    --sh:0 6px 20px rgba(92,14,76,.10); --sh-lg:0 14px 36px rgba(92,14,76,.16);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:'Nunito',system-ui,sans-serif;background:var(--lav);color:var(--body);
+    max-width:460px;margin:0 auto;min-height:100dvh;font-size:15px;line-height:1.5}
+  .fr{font-family:'Fraunces',serif}
+
+  /* ---- headers ---- */
+  .hhead{background:linear-gradient(160deg,var(--purple-2),var(--purple));border-radius:0 0 34px 34px;
+    padding:calc(16px + env(safe-area-inset-top)) 18px 24px;display:flex;align-items:center;gap:12px}
+  .search{flex:1;background:rgba(255,255,255,.16);border:1.5px solid rgba(255,255,255,.28);border-radius:30px;
+    padding:12px 18px;color:rgba(255,255,255,.9);font-family:'Nunito';font-size:14px;font-weight:600}
+  .search::placeholder{color:rgba(255,255,255,.7)}
+  .sbtn{width:46px;height:46px;border-radius:50%;background:var(--coral);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 10px rgba(0,0,0,.15)}
+  .sbtn svg{width:20px;height:20px;stroke:#fff;stroke-width:2.4;fill:none}
+
+  .appbar{background:linear-gradient(160deg,var(--purple-2),var(--purple));color:#fff;border-radius:0 0 30px 30px;
+    padding:calc(16px + env(safe-area-inset-top)) 16px 20px;display:flex;align-items:center;gap:12px;
+    position:sticky;top:0;z-index:20}
+  .appbar .back{width:38px;height:38px;display:flex;align-items:center;justify-content:center;margin-left:-4px;border-radius:50%;cursor:pointer;background:rgba(255,255,255,.14)}
+  .appbar .back:active{background:rgba(255,255,255,.25)}
+  .appbar .back svg{width:20px;height:20px;stroke:#fff;stroke-width:2.4;fill:none}
+  .appbar .ttl{font-size:19px;font-weight:800;flex:1}
+  .appbar .step{font-size:12px;font-weight:700;background:rgba(255,255,255,.18);padding:5px 12px;border-radius:20px;white-space:nowrap}
+
+  .scroll{padding:18px;padding-bottom:28px}
+  .view{animation:fade .3s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  h2{font-family:'Fraunces';font-size:23px;font-weight:700;color:var(--ink);margin-bottom:6px}
+  .sub{color:var(--muted);font-size:14px;margin-bottom:18px;font-weight:600}
+
+  .card{background:var(--card);border-radius:24px;box-shadow:var(--sh)}
+  .card-hi{background:var(--card-hi);border-radius:24px;box-shadow:var(--sh)}
+  .pad{padding:18px}
+
+  /* ---- home ---- */
+  .hero{margin:18px;margin-bottom:16px;padding:26px 22px}
+  .hero .logorow{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .hero .logo{font-family:'Fraunces';font-weight:900;font-size:46px;color:var(--ink);line-height:.9;letter-spacing:-.5px}
+  .hero .mascot{width:58px;height:58px;flex-shrink:0;object-fit:contain;display:block}
+  .hero h3{font-family:'Fraunces';font-size:19px;font-weight:700;color:var(--ink);margin-bottom:10px}
+  .hero p{color:var(--body);font-size:14.5px;font-weight:600;line-height:1.55}
+
+  .infopill{display:flex;align-items:center;gap:15px;background:var(--card);border-radius:26px;padding:16px 20px;margin:0 18px 22px;box-shadow:var(--sh)}
+  .infopill .n{font-family:'Fraunces';font-size:30px;font-weight:900;color:var(--purple);line-height:1;flex-shrink:0}
+  .infopill .t{font-size:13px;font-weight:600;color:var(--body)} .infopill .t b{color:var(--ink);font-weight:800}
+
+  .btn{width:100%;border:none;border-radius:30px;padding:17px;font-family:'Nunito';font-weight:800;font-size:16px;cursor:pointer;transition:.13s;display:flex;align-items:center;justify-content:center;gap:10px}
+  .btn-purple{background:var(--purple);color:#fff;box-shadow:0 8px 20px rgba(124,20,102,.32)}
+  .btn-purple:active{background:var(--purple-deep);transform:translateY(1px)}
+  .btn-purple:disabled{background:#C6A8C2;box-shadow:none;pointer-events:none}
+  .btn-ghost{background:none;color:var(--purple);font-weight:800;padding:14px;margin-top:2px}
+  .btn svg{width:19px;height:19px;stroke:currentColor;stroke-width:2.6;fill:none}
+  .home-cta{margin:0 18px}
+
+  .rm-label{font-family:'Nunito';font-size:13px;font-weight:800;color:var(--ink);text-align:center;letter-spacing:.5px;margin:26px 0 12px;text-transform:uppercase}
+  .roadmap{margin:0 18px}
+  .roadmap .rmi{display:flex;align-items:center;gap:12px;padding:13px 18px;border-top:1px solid var(--line);font-size:13.5px;font-weight:600;color:var(--body)}
+  .roadmap .rmi:first-child{border-top:none}
+  .roadmap .rmi svg{width:19px;height:19px;stroke:var(--purple);stroke-width:2;fill:none;flex-shrink:0}
+
+  .dots{display:flex;justify-content:center;gap:8px;margin:22px 0 18px}
+  .dots i{width:9px;height:9px;border-radius:50%;background:rgba(124,20,102,.25)}
+  .dots i.on{background:var(--purple);width:22px;border-radius:5px}
+
+  .nav{margin:0 18px calc(16px + env(safe-area-inset-bottom));background:var(--coral);border-radius:34px;
+    display:flex;justify-content:space-around;padding:10px;box-shadow:0 8px 22px rgba(236,138,130,.4)}
+  .nav button{width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.22);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.13s}
+  .nav button svg{width:24px;height:24px;stroke:#fff;stroke-width:2;fill:none}
+  .nav button.on{background:var(--purple-deep)}
+  .nav button:active{transform:scale(.94)}
+
+  /* ---- forms ---- */
+  .field{margin-bottom:15px}
+  .field label{display:block;font-size:13px;font-weight:700;color:var(--body);margin-bottom:6px}
+  .field input, .field select{width:100%;border:1.5px solid var(--line-w);border-radius:16px;padding:13px 15px;font-family:'Nunito';font-size:15px;font-weight:600;color:var(--ink);background:var(--white)}
+  .field input:focus, .field select:focus{outline:none;border-color:var(--purple)}
+  .two{display:flex;gap:12px} .two .field{flex:1}
+  .seg{display:flex;gap:8px}
+  .seg button{flex:1;border:1.5px solid var(--line-w);background:var(--white);border-radius:16px;padding:12px 6px;font-family:'Nunito';font-weight:700;font-size:14px;color:var(--ink);cursor:pointer;transition:.12s}
+  .seg button.on{border-color:var(--purple);background:#F5E3F2;color:var(--purple)}
+  .consent{display:flex;gap:13px;align-items:flex-start;background:var(--card-hi);border-radius:18px;padding:16px;margin-top:6px;cursor:pointer}
+  .consent .box{width:24px;height:24px;border:2px solid #C6A0BE;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.12s;margin-top:1px}
+  .consent.on .box{background:var(--purple);border-color:var(--purple)}
+  .consent .box svg{width:15px;height:15px;stroke:#fff;stroke-width:3;fill:none;opacity:0}
+  .consent.on .box svg{opacity:1}
+  .consent .txt{font-size:12.5px;font-weight:600;color:var(--body);line-height:1.5} .consent .txt b{color:var(--ink);font-weight:800}
+
+  /* ---- capture ---- */
+  .guide{background:var(--card-hi);border-radius:18px;padding:14px 16px;margin-bottom:14px}
+  .guide .gt{font-size:12px;font-weight:800;color:var(--purple);text-transform:uppercase;letter-spacing:.4px;margin-bottom:9px}
+  .guide ul{list-style:none;display:flex;flex-direction:column;gap:7px}
+  .guide li{display:flex;gap:9px;font-size:13px;font-weight:600;color:var(--body);align-items:flex-start}
+  .guide li svg{width:15px;height:15px;stroke:var(--verde);stroke-width:3;fill:none;flex-shrink:0;margin-top:2px}
+  .cap{border:2.5px dashed #CDA8C8;border-radius:22px;background:var(--card);aspect-ratio:4/3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;cursor:pointer;overflow:hidden;position:relative;margin-bottom:14px}
+  .cap:active{border-color:var(--purple);background:#F7ECF4}
+  .cap .ic{width:56px;height:56px;border-radius:50%;background:#F3E0F0;display:flex;align-items:center;justify-content:center}
+  .cap .ic svg{width:27px;height:27px;stroke:var(--purple);stroke-width:1.9;fill:none}
+  .cap span{font-size:13px;font-weight:700;color:var(--muted)}
+  .cap img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+  .cap .retake{position:absolute;bottom:11px;right:11px;background:rgba(92,14,76,.9);color:#fff;font-size:11px;font-weight:700;padding:7px 13px;border-radius:20px}
+  input[type=file]{display:none}
+  .note{display:flex;gap:11px;background:var(--card-hi);border-radius:16px;padding:13px 15px;font-size:12.5px;font-weight:600;color:#8A6A2E;line-height:1.5;margin-bottom:18px}
+  .note svg{width:18px;height:18px;stroke:var(--amarelo);stroke-width:2.4;fill:none;flex-shrink:0;margin-top:1px}
+  .note b{color:#6E521E;font-weight:800}
+
+  /* ---- body map ---- */
+  .maptools{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .maptools .cnt{font-size:14px;font-weight:600;color:var(--body)} .maptools .cnt b{color:var(--ink);font-size:17px;font-weight:800}
+  .maptools button{background:var(--white);border:1.5px solid var(--line-w);border-radius:20px;padding:8px 16px;font-size:13px;font-weight:700;color:var(--purple);font-family:'Nunito';cursor:pointer}
+  .mapwrap{background:var(--card);border-radius:22px;padding:12px;margin-bottom:14px;box-shadow:var(--sh)}
+  .mapwrap svg{width:100%;display:block;touch-action:manipulation}
+
+  /* ---- questions ---- */
+  .block-h{font-family:'Fraunces';font-size:16px;font-weight:700;color:var(--purple);margin:24px 4px 12px;display:flex;align-items:center;gap:9px}
+  .block-h svg{width:18px;height:18px;stroke:var(--purple);stroke-width:2.2;fill:none}
+  .q{margin-bottom:12px;overflow:hidden}
+  .q .qhead{padding:16px 17px 12px}
+  .q .qnum{font-size:11px;font-weight:800;color:var(--purple);letter-spacing:.6px;text-transform:uppercase;margin-bottom:7px}
+  .q .qtitle{font-size:15.5px;font-weight:700;color:var(--ink);line-height:1.35;margin-bottom:5px}
+  .q .qhint{font-size:12.5px;font-weight:600;color:var(--muted);line-height:1.5}
+  .opt{width:100%;display:flex;align-items:center;gap:12px;padding:15px 17px;border:none;background:none;border-top:1px solid var(--line);font-family:'Nunito';font-weight:600;font-size:14.5px;color:var(--ink);cursor:pointer;text-align:left}
+  .opt:active{background:#F7ECF4}
+  .opt .radio{width:21px;height:21px;border:2px solid #C6A0BE;border-radius:50%;flex-shrink:0;position:relative;transition:.12s}
+  .opt.sel{background:#F5E3F2;font-weight:800}
+  .opt.sel .radio{border-color:var(--purple)}
+  .opt.sel .radio::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--purple)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;padding:4px 17px 17px}
+  .chip-t{border:1.5px solid var(--line-w);background:var(--white);border-radius:22px;padding:10px 15px;font-family:'Nunito';font-weight:700;font-size:13.5px;color:var(--ink);cursor:pointer;transition:.12s}
+  .chip-t.on{border-color:var(--purple);background:#F5E3F2;color:var(--purple)}
+  .adv{margin-bottom:12px}
+  .adv .advhead{padding:16px 17px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+  .adv .advhead .l{font-size:14.5px;font-weight:700;color:var(--ink)}
+  .adv .advhead .l small{display:block;font-size:12px;color:var(--muted);font-weight:600;margin-top:2px}
+  .adv .advhead svg{width:21px;height:21px;stroke:var(--muted);stroke-width:2.4;fill:none;transition:.2s}
+  .adv.open .advhead svg{transform:rotate(180deg)}
+  .adv .advbody{display:none;padding:0 17px 17px} .adv.open .advbody{display:block}
+
+  /* ---- result ---- */
+  .result-top{padding:24px 20px;text-align:center;margin-bottom:14px}
+  .donut{position:relative;width:176px;height:176px;margin:0 auto 4px}
+  .donut svg{width:100%;height:100%}
+  .donut .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .donut .score{font-family:'Fraunces';font-size:50px;font-weight:900;line-height:1}
+  .donut .max{font-size:12px;font-weight:700;color:var(--muted);margin-top:2px}
+  .chip{display:inline-flex;align-items:center;gap:7px;font-weight:800;font-size:14px;padding:8px 16px;border-radius:22px;margin:12px 0 8px}
+  .chip .dot{width:9px;height:9px;border-radius:50%;background:currentColor}
+  .chip.g{background:var(--verde-bg);color:var(--verde)} .chip.y{background:var(--amarelo-bg);color:#A9761C} .chip.r{background:var(--vermelho-bg);color:var(--vermelho)}
+  .reco{font-size:15px;font-weight:700;color:var(--ink);line-height:1.5;max-width:300px;margin:0 auto}
+  .flag{margin-top:14px;background:var(--vermelho-bg);border-radius:14px;padding:12px 15px;font-size:12.5px;font-weight:600;color:#9C3325;line-height:1.45;text-align:left;display:flex;gap:9px}
+  .flag svg{width:17px;height:17px;stroke:var(--vermelho);stroke-width:2.4;fill:none;flex-shrink:0;margin-top:1px}
+
+  .lesion-card{padding:16px;margin-bottom:14px;animation:fade .35s ease}
+  .lesion-title{font-family:'Fraunces';font-size:17px;font-weight:700;color:var(--ink);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .result-photo-wrap{width:100%;height:min(320px,58vw);min-height:210px;border-radius:20px;overflow:hidden;box-shadow:var(--sh-lg);background:var(--card-hi);cursor:pointer;transition:transform .16s ease,box-shadow .16s ease}
+  .result-photo-wrap:hover{transform:translateY(-1px);box-shadow:0 16px 34px rgba(92,14,76,.18)}
+  .result-photo-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+  .photo-placeholder{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--muted);background:linear-gradient(160deg,#FCF4E4,#F6E7C2)}
+  .photo-placeholder svg{width:64px;height:64px;stroke:var(--purple);stroke-width:1.7;fill:none;opacity:.7}
+  .photo-placeholder span{font-size:13px;font-weight:800;color:var(--body)}
+  .result-info{display:grid;gap:10px;margin-top:14px}
+  .info-panel{background:var(--card-hi);border-radius:18px;padding:14px 15px}
+  .info-panel .panel-label{font-size:12px;font-weight:800;color:var(--purple);text-transform:uppercase;letter-spacing:.45px;margin-bottom:7px;display:flex;align-items:center;gap:7px}
+  .lesion-count{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+  .lesion-count span{font-size:13.5px;font-weight:700;color:var(--body)}
+  .lesion-count b{font-family:'Fraunces';font-size:34px;font-weight:900;color:var(--ink);line-height:1}
+  .region-list{display:flex;flex-direction:column;gap:7px;margin-top:12px;padding-top:11px;border-top:1px solid var(--line)}
+  .region-pill{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:800;color:var(--ink);background:var(--card);border-radius:15px;padding:8px 10px}
+  .region-pill i{width:8px;height:8px;border-radius:50%;background:var(--vermelho);flex-shrink:0}
+  .region-empty{font-size:12.5px;font-weight:700;color:var(--muted)}
+  .future-text{font-size:13px;font-weight:600;color:var(--body);line-height:1.5;margin-bottom:11px}
+  .future-list{list-style:none;display:grid;gap:7px;margin-bottom:13px}
+  .future-list li{font-size:13px;font-weight:700;color:var(--ink);display:flex;gap:8px;align-items:flex-start}
+  .future-list li::before{content:"✓";color:var(--verde);font-weight:900}
+  .dev-badge{display:inline-flex;font-size:10.5px;font-weight:800;color:#8A6A2E;background:var(--card);border:1px solid var(--line);padding:6px 11px;border-radius:16px;text-transform:uppercase;letter-spacing:.35px}
+  .photo-modal{position:fixed;inset:0;background:rgba(31,6,26,.86);z-index:80;display:flex;align-items:center;justify-content:center;padding:22px;animation:fade .18s ease}
+  .photo-modal.hidden{display:none}
+  .photo-modal img{max-width:100%;max-height:86dvh;border-radius:22px;box-shadow:0 18px 48px rgba(0,0,0,.35);object-fit:contain;background:var(--card)}
+  .photo-modal .close{position:absolute;top:calc(18px + env(safe-area-inset-top));right:18px;width:42px;height:42px;border:none;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:28px;line-height:1;cursor:pointer}
+  .sec-label{font-size:12px;font-weight:800;color:var(--ink);text-transform:uppercase;letter-spacing:.5px;margin:22px 6px 10px}
+  .row{display:flex;justify-content:space-between;align-items:center;padding:14px 17px;border-top:1px solid var(--line);font-size:14px;font-weight:600;gap:12px}
+  .row:first-child{border-top:none} .row .lbl{flex:1;color:var(--body)}
+  .row.total{background:#F6E7C2;border-radius:0 0 24px 24px} .row.total .lbl{font-weight:800;color:var(--ink)}
+  .pts{font-weight:800;font-size:13px;padding:4px 12px;border-radius:16px;background:#EFE7D2;color:var(--muted);min-width:42px;text-align:center}
+  .pts.pos{background:var(--vermelho-bg);color:var(--vermelho)}
+  .row.total .pts{background:var(--purple);color:#fff}
+  .report{border-left:5px solid var(--purple)}
+  .report .rtitle{font-family:'Fraunces';padding:16px 17px 4px;font-weight:700;font-size:16px;color:var(--ink)}
+  .report .rrow{display:flex;padding:12px 17px;border-top:1px solid var(--line);font-size:13.5px;font-weight:600}
+  .report .rk{color:var(--muted);width:104px;flex-shrink:0} .report .rv{font-weight:700;color:var(--ink)}
+  .report .sigrow{padding:13px 17px;border-top:1px solid var(--line);font-size:12.5px;font-weight:600;color:var(--muted);line-height:1.5}
+  .aicard{display:flex;align-items:center;gap:12px;padding:15px 17px;border-bottom:1px solid var(--line)}
+  .aicard .ai-ic{width:40px;height:40px;border-radius:12px;background:#F3E0F0;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .aicard .ai-ic svg{width:21px;height:21px;stroke:var(--purple);stroke-width:1.9;fill:none}
+  .aicard .ai-t{font-size:13.5px;font-weight:800;color:var(--ink)} .aicard .ai-s{font-size:12px;font-weight:600;color:var(--muted)}
+  .aicard .badge{margin-left:auto;font-size:10.5px;font-weight:800;color:#8A6A2E;background:var(--card-hi);padding:5px 10px;border-radius:14px;text-transform:uppercase}
+
+  .disc{font-size:11.5px;font-weight:600;color:var(--muted);text-align:center;line-height:1.55;padding:16px 12px 8px}
+  .hidden{display:none}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="v_home" class="view">
+  <div class="hhead">
+    <div class="search">Triagem, Atenção primária</div>
+    <div class="sbtn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
+  </div>
+  <div class="card-hi hero">
+    <div class="logorow">
+      <div class="logo fr">HanSina</div>
+      <img class="mascot" src="hans.png" alt="Logo HanSina">
+    </div>
+    <h3>Detecção precoce de hanseníase</h3>
+    <p>Apoio à busca ativa domiciliar. Cadastre o paciente, registre a lesão e responda o roteiro clínico — a ferramenta calcula o risco e orienta o encaminhamento.</p>
+  </div>
+
+  <div class="infopill"><div class="n fr">2º</div><div class="t">O Brasil é o <b>segundo país do mundo</b> em casos novos. Quanto antes o caso é encontrado, menor o risco de incapacidade.</div></div>
+
+  <div class="home-cta">
+    <button class="btn btn-purple" onclick="show('cad')">Iniciar nova triagem
+      <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+  </div>
+
+  <div class="rm-label">Também no roadmap</div>
+  <div class="card roadmap">
+    <div class="rmi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg>Painel do gestor · mapa de calor e indicadores</div>
+    <div class="rmi"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H4z"/><path d="M2 20h20"/></svg>Integração automática com o e-SUS APS</div>
+    <div class="rmi"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Teleconsultoria com dermatologia</div>
+    <div class="rmi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Acompanhamento pós-encaminhamento</div>
+  </div>
+
+  <div class="dots"><i class="on"></i><i></i><i></i></div>
+
+  <div class="nav">
+    <button class="on"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/></svg></button>
+    <button onclick="show('cad')"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg></button>
+    <button><svg viewBox="0 0 24 24"><path d="M3 3h18v4H3zM3 10h18v4H3zM3 17h18v4H3z"/></svg></button>
+    <button><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></button>
+  </div>
+</div>
+
+<!-- CADASTRO -->
+<div id="v_cad" class="view hidden">
+  <div class="appbar"><div class="back" onclick="show('home')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></div><div class="ttl">Cadastro do paciente</div><span class="step">1 de 5</span></div>
+  <div class="scroll">
+    <div class="card pad">
+      <div class="field"><label>Nome ou identificação</label><input id="f_nome" placeholder="Nome do paciente"></div>
+      <div class="two">
+        <div class="field"><label>Idade</label><input id="f_idade" type="number" inputmode="numeric" placeholder="anos"></div>
+        <div class="field"><label>Sexo</label><div class="seg"><button data-f="sexo" data-v="F" onclick="segPick(this)">F</button><button data-f="sexo" data-v="M" onclick="segPick(this)">M</button></div></div>
+      </div>
+      <div class="two">
+        <div class="field"><label>Microárea</label><input id="f_micro" placeholder="ex.: 03"></div>
+        <div class="field"><label>Data</label><input id="f_data" type="date"></div>
+      </div>
+      <div class="field"><label>Telefone</label><input id="f_tel" type="tel" inputmode="tel" placeholder="(00) 00000-0000"></div>
+      <div class="field" style="margin-bottom:4px"><label>Teve contato com caso de hanseníase?</label><div class="seg"><button data-f="contato" data-v="1" onclick="segPick(this)">Sim</button><button data-f="contato" data-v="0" onclick="segPick(this)">Não</button><button data-f="contato" data-v="x" onclick="segPick(this)">Não sabe</button></div></div>
+    </div>
+    <div class="consent" id="consent" onclick="toggleConsent()">
+      <div class="box"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 6"/></svg></div>
+      <div class="txt"><b>Consentimento (LGPD).</b> O paciente autoriza o registro dos dados e da foto da lesão para triagem em saúde, com armazenamento seguro e uso restrito à equipe.</div>
+    </div>
+    <button class="btn btn-purple" id="cadNext" disabled onclick="show('foto')" style="margin-top:16px">Continuar
+      <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    <button class="btn btn-ghost" onclick="show('home')">Cancelar</button>
+  </div>
+</div>
+
+<!-- FOTO -->
+<div id="v_foto" class="view hidden">
+  <div class="appbar"><div class="back" onclick="show('cad')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></div><div class="ttl">Registro da lesão</div><span class="step">2 de 5</span></div>
+  <div class="scroll">
+    <h2>Fotografe a mancha</h2><p class="sub">Siga as orientações para uma boa foto.</p>
+    <div class="guide"><div class="gt">Como fotografar</div><ul>
+      <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 6"/></svg>Aproxime cerca de 20 cm da lesão</li>
+      <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 6"/></svg>Boa luz natural, sem sombra sobre a mancha</li>
+      <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 6"/></svg>Fundo neutro e foco na lesão</li>
+      <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 6"/></svg>Coloque uma régua ou moeda ao lado, para escala</li>
+    </ul></div>
+    <label class="cap" for="photo"><img id="preview" class="hidden" alt="">
+      <div class="ic" id="capIc"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+      <span id="capText">Tocar para fotografar</span><div class="retake hidden" id="retake">Trocar foto</div></label>
+    <input type="file" id="photo" accept="image/*" capture="environment" onchange="onPhoto(event)">
+    <div class="note"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg><div><b>Análise automática da imagem — em desenvolvimento.</b> Nesta versão a foto é apenas registrada. O classificador de imagem entra na próxima etapa.</div></div>
+    <button class="btn btn-purple" onclick="show('mapa')">Continuar</button>
+    <button class="btn btn-ghost" onclick="show('cad')">Voltar</button>
+  </div>
+</div>
+
+<!-- MAPA -->
+<div id="v_mapa" class="view hidden">
+  <div class="appbar"><div class="back" onclick="show('foto')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></div><div class="ttl">Mapa corporal</div><span class="step">3 de 5</span></div>
+  <div class="scroll">
+    <h2>Onde estão as lesões?</h2><p class="sub">Toque na figura para marcar cada mancha. Ajuda a acompanhar a evolução.</p>
+    <div class="maptools"><div class="cnt"><b id="mapCount">0</b> lesões marcadas</div><button onclick="undoMarker()">Desfazer</button></div>
+    <div class="mapwrap"><div id="bodyMap" style="position:relative;max-width:420px;margin:auto" onclick="tapBody(event)"><img src="—Pngtree—human body front and back_6593647.png" style="width:100%;display:block;pointer-events:none"><svg id="markerLayer" style="position:absolute;inset:0;width:100%;height:100%"><g id="markers"></g></svg></div></div>
+    <button class="btn btn-purple" onclick="show('sinais')">Continuar</button>
+    <button class="btn btn-ghost" onclick="show('foto')">Voltar</button>
+  </div>
+</div>
+
+<!-- SINAIS -->
+<div id="v_sinais" class="view hidden">
+  <div class="appbar"><div class="back" onclick="show('mapa')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></div><div class="ttl">Roteiro clínico</div><span class="step">4 de 5</span></div>
+  <div class="scroll">
+    <div class="block-h"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>Teste de sensibilidade guiado</div>
+    <p class="sub" style="margin:-4px 4px 12px">Faça na mancha, com a pessoa de olhos fechados, comparando com a pele em volta.</p>
+    <div id="sensBlock"></div>
+    <div class="block-h"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>Lesões de pele</div>
+    <div id="skinBlock"></div>
+    <div class="block-h"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v4M12 18v4M4 12H2M22 12h-2"/></svg>Sintomas neurológicos</div>
+    <div class="card q"><div class="qhead"><div class="qtitle">A pessoa sente algum destes? (marque todos)</div><div class="qhint">Relatados pela pessoa.</div></div><div class="chips" id="neuroChips"></div></div>
+    <div class="card adv" id="advNerve">
+      <div class="advhead" onclick="document.getElementById('advNerve').classList.toggle('open')"><div class="l">Avaliação de nervos <small>Opcional — apenas se você tem treinamento</small></div><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+      <div class="advbody"><p class="sub" style="margin-bottom:10px">Marque os nervos com espessamento ou dor à palpação.</p><div class="chips" id="nerveChips" style="padding:0"></div></div>
+    </div>
+    <button class="btn btn-purple" id="calcBtn" disabled onclick="calcular()" style="margin-top:18px">Calcular risco
+      <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+    <button class="btn btn-ghost" onclick="show('mapa')">Voltar</button>
+  </div>
+</div>
+
+<!-- RESULTADO -->
+<div id="v_result" class="view hidden">
+  <div class="appbar"><div class="back" onclick="show('sinais')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></div><div class="ttl">Resultado</div><span class="step">5 de 5</span></div>
+  <div class="scroll">
+    <div class="card result-top" id="resultTop">
+      <div class="donut"><svg viewBox="0 0 172 172">
+        <circle cx="86" cy="86" r="68" fill="none" stroke="#EFE3D0" stroke-width="14" stroke-linecap="round" stroke-dasharray="320 428" transform="rotate(135 86 86)"/>
+        <circle id="donutVal" cx="86" cy="86" r="68" fill="none" stroke="currentColor" stroke-width="14" stroke-linecap="round" stroke-dasharray="0 999" transform="rotate(135 86 86)"/>
+      </svg><div class="center"><div class="score fr" id="scoreNum">0</div><div class="max">de 14 pontos</div></div></div>
+      <div class="chip" id="chip"><span class="dot"></span><span id="chipText">—</span></div>
+      <div class="reco" id="reco">—</div>
+      <div class="flag hidden" id="flag"><svg viewBox="0 0 24 24"><path d="M12 2L2 20h20z"/><path d="M12 9v5M12 17h.01"/></svg><div id="flagText"></div></div>
+    </div>
+    <div class="card lesion-card" id="lesionCard">
+      <div class="lesion-title">📷 LESÃO REGISTRADA</div>
+      <div class="result-photo-wrap" id="resultPhotoWrap" onclick="openPhotoModal()">
+        <img id="resultPhoto" class="hidden" alt="Foto da lesão registrada">
+        <div class="photo-placeholder" id="resultPhotoPlaceholder">
+          <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="11" r="2"/><path d="M5 17l4-4 3 3 2-2 5 5"/></svg>
+          <span>Foto não registrada</span>
+        </div>
+      </div>
+      <div class="result-info">
+        <div class="info-panel">
+          <div class="panel-label">📍 Localização</div>
+          <div class="lesion-count"><span>Lesões registradas</span><b id="resultLesionCount">0</b></div><div class="region-list" id="resultRegions"><span class="region-empty">Nenhuma região selecionada</span></div>
+        </div>
+        <div class="info-panel">
+          <div class="panel-label">🤖 Análise Inteligente</div>
+          <p class="future-text">A análise automática da imagem será disponibilizada em versões futuras do HanSina.</p>
+          <ul class="future-list">
+            <li>Delimitação automática da lesão</li>
+            <li>Estimativa da área</li>
+            <li>Avaliação das bordas</li>
+            <li>Hipocromia</li>
+            <li>Perda de pelos</li>
+            <li>Classificação automática</li>
+            <li>Probabilidade de hanseníase</li>
+          </ul>
+          <span class="dev-badge">IA EM DESENVOLVIMENTO</span>
+        </div>
+      </div>
+    </div>    <div class="sec-label">Análise combinada</div>
+    <div class="card">
+      <div class="aicard"><div class="ai-ic"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="10" r="1.5"/><path d="M6 17l4-4 3 3 2-2 3 3"/></svg></div>
+        <div><div class="ai-t">Análise da foto</div><div class="ai-s">Formato, bordas e cor da lesão</div></div><div class="badge">v2</div></div>
+      <div id="breakdown2"></div>
+    </div>
+    <div class="sec-label">Encaminhamento gerado</div>
+    <div class="card report" id="report"></div>
+    <button class="btn btn-purple" style="margin-top:16px" onclick="compartilhar()">
+      <svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>Enviar para a UBS de referência</button>
+    <button class="btn btn-ghost" onclick="reiniciar()">Nova triagem</button>
+    <p class="disc">Todo caso amarelo ou vermelho deve ser avaliado por profissional. A ferramenta prioriza a fila — não substitui o exame clínico.</p>
+  </div>
+</div>
+
+<div class="photo-modal hidden" id="photoModal" onclick="closePhotoModal(event)">
+  <button class="close" type="button" onclick="closePhotoModal(event)" aria-label="Fechar">×</button>
+  <img id="modalPhoto" alt="Foto da lesão ampliada">
+</div>
+<script>
+const cad={sexo:'',contato:'x'};
+const A={sens:{},skin:{},neuro:new Set(),nerve:new Set()};
+let photoData=null, markers=[];
+const SENS=[{id:'toque',t:'Toque — com um algodão',h:'Encoste o algodão na mancha e na pele em volta. Sente igual?'},{id:'dor',t:'Dor — com a ponta de um palito',h:'Toque de leve com a ponta. Sente a alfinetada na mancha?'},{id:'temp',t:'Temperatura — com um tubo morno',h:'Encoste algo morno. Sente o calor na mancha?'}];
+const SKIN=[{id:'num',title:'Quantas manchas ou caroços há no corpo?',hint:'Conte junto, olhando braços, pernas, costas e rosto.',opts:[['Nenhuma',0],['Só 1',0],['2 a 5',1],['Mais de 5',2]]},{id:'cor',title:'A cor da mancha está alterada?',hint:'Mais clara, avermelhada ou acastanhada.',opts:[['Sim',1],['Não',0]]},{id:'pelos',title:'Há perda de pelos ou pele mais seca na mancha?',hint:'Menos pelos ou menos suor que a pele em volta.',opts:[['Sim',1],['Não',0]]},{id:'relevo',title:'A mancha tem relevo ou há caroços?',hint:'Passe a mão: alta, grossa, endurecida, ou caroços sob a pele.',opts:[['Sim',1],['Não',0]]}];
+const NEURO=['Dormência','Formigamento','Choques','Fraqueza nas mãos','Fraqueza nos pés','Dificuldade para segurar objetos'];
+const NERVE=['Ulnar','Mediano','Radial','Fibular comum','Tibial posterior'];
+const MAX=14,ARC=320;
+document.getElementById('f_data').valueAsDate=new Date();
+function segPick(el){const f=el.dataset.f;el.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));el.classList.add('on');cad[f]=el.dataset.v;}
+function toggleConsent(){const c=document.getElementById('consent');c.classList.toggle('on');document.getElementById('cadNext').disabled=!c.classList.contains('on');}
+function renderSens(){document.getElementById('sensBlock').innerHTML=SENS.map((s,i)=>`<div class="card q"><div class="qhead"><div class="qnum">Teste ${i+1} de 3</div><div class="qtitle">${s.t}</div><div class="qhint">${s.h}</div></div><button class="opt" data-b="sens" data-q="${s.id}" data-v="0" onclick="pick(this)"><span class="radio"></span><span>Sente igual (normal)</span></button><button class="opt" data-b="sens" data-q="${s.id}" data-v="1" onclick="pick(this)"><span class="radio"></span><span>Sente menos ou não sente</span></button></div>`).join('');}
+function renderSkin(){document.getElementById('skinBlock').innerHTML=SKIN.map(q=>`<div class="card q"><div class="qhead"><div class="qtitle">${q.title}</div><div class="qhint">${q.hint}</div></div>${q.opts.map(o=>`<button class="opt" data-b="skin" data-q="${q.id}" data-v="${o[1]}" onclick="pick(this)"><span class="radio"></span><span>${o[0]}</span></button>`).join('')}</div>`).join('');}
+function renderChips(){document.getElementById('neuroChips').innerHTML=NEURO.map(n=>`<button class="chip-t" onclick="toggleSet('neuro',this,'${n}')">${n}</button>`).join('');document.getElementById('nerveChips').innerHTML=NERVE.map(n=>`<button class="chip-t" onclick="toggleSet('nerve',this,'${n}')">${n}</button>`).join('');}
+function pick(el){const b=el.dataset.b,q=el.dataset.q;document.querySelectorAll('.opt[data-b="'+b+'"][data-q="'+q+'"]').forEach(x=>x.classList.remove('sel'));el.classList.add('sel');A[b][q]={v:+el.dataset.v,label:el.querySelector('span:last-child').textContent};checkComplete();}
+function toggleSet(w,el,v){el.classList.toggle('on');if(A[w].has(v))A[w].delete(v);else A[w].add(v);}
+function checkComplete(){const s=SENS.every(x=>A.sens[x.id]),k=SKIN.every(q=>A.skin[q.id]);document.getElementById('calcBtn').disabled=!(s&&k);}
+function getAnatomicRegion(x,y){
+  const face=x<50?'anterior':'posterior',nx=(x%50)*2,lateral=nx<30||nx>70;
+  if(y<12)return face==='anterior'?'Cabeça / face':'Cabeça posterior';
+  if(y<19)return 'Pescoço '+face;
+  if(lateral&&y<39)return 'Membro superior '+face+' - braço';
+  if(lateral&&y<58)return 'Membro superior '+face+' - antebraço / mão';
+  if(y<34)return face==='anterior'?'Tórax anterior':'Dorso superior';
+  if(y<46)return face==='anterior'?'Abdome':'Região lombar';
+  if(y<58)return face==='anterior'?'Pelve / região inguinal':'Região glútea';
+  if(y<77)return 'Membro inferior '+face+' - coxa';
+  return 'Membro inferior '+face+' - perna / pé';
+}
+function tapBody(e){const map=document.getElementById('bodyMap'),svg=document.getElementById('markerLayer'),r=map.getBoundingClientRect();const x=((e.clientX-r.left)/r.width)*100,y=((e.clientY-r.top)/r.height)*100;const c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('cx',x+'%');c.setAttribute('cy',y+'%');c.setAttribute('r','1.4%');c.setAttribute('fill','#D2513F');c.setAttribute('stroke','#fff');c.setAttribute('stroke-width','2');document.getElementById('markers').appendChild(c);markers.push({el:c,region:getAnatomicRegion(x,y)});document.getElementById('mapCount').textContent=markers.length;}
+function undoMarker(){const m=markers.pop();if(m){m.el.remove();document.getElementById('mapCount').textContent=markers.length;}}
+function calcular(){
+  updateResultPhoto();
+  let score=0;const c=[];const add=(cond,pts,label)=>{if(cond){score+=pts;c.push({label,pts});}};
+  add(cad.contato==='1',2,'Contato domiciliar com caso');
+  const sensFlag=SENS.some(s=>A.sens[s.id].v===1);
+  add(sensFlag,3,'Perda de sensibilidade na mancha');
+  add(A.neuro.size>0,2,'Sintomas neurológicos');
+  const numPts=A.skin.num.v;add(numPts>0,numPts,'Número de lesões');
+  add(A.skin.cor.v>0,1,'Cor da mancha alterada');
+  add(A.skin.pelos.v>0,1,'Perda de pelos / pele seca');
+  add(A.skin.relevo.v>0,1,'Relevo ou caroços');
+  add(A.nerve.size>0,2,'Nervo espessado/doloroso');
+  let cls,verdict,reco,flag='';
+  if(sensFlag){cls='r';verdict='Risco alto';reco='Encaminhar para avaliação médica em até 7 dias.';flag='Mancha com perda de sensibilidade é sinal cardinal de hanseníase — encaminhamento prioritário, independente da pontuação.';}
+  else if(score>=7){cls='r';verdict='Risco alto';reco='Encaminhar para avaliação médica em até 7 dias.';}
+  else if(score>=4){cls='y';verdict='Risco moderado';reco='Encaminhar à UBS de referência em até 30 dias.';}
+  else{cls='g';verdict='Baixa suspeita';reco='Orientar, registrar e reavaliar na próxima visita.';}
+  const top=document.getElementById('resultTop');top.style.color=cls==='r'?'var(--vermelho)':cls==='y'?'var(--amarelo)':'var(--verde)';
+  document.getElementById('chip').className='chip '+cls;document.getElementById('chipText').textContent=verdict;document.getElementById('reco').textContent=reco;
+  const fl=document.getElementById('flag');if(flag){fl.classList.remove('hidden');document.getElementById('flagText').textContent=flag;}else fl.classList.add('hidden');
+  document.getElementById('breakdown2').innerHTML=c.map(x=>`<div class="row"><span class="lbl">${x.label}</span><span class="pts pos">+${x.pts}</span></div>`).join('')+`<div class="row total"><span class="lbl">Escore clínico</span><span class="pts">${score}/14</span></div>`;
+  const now=new Date();const nome=document.getElementById('f_nome').value||'Não informado';const idade=document.getElementById('f_idade').value||'—';const micro=document.getElementById('f_micro').value||'—';
+  const cond=cls==='r'?'PRIORITÁRIO (7 dias)':cls==='y'?'ROTINA (30 dias)':'OBSERVAÇÃO';const neuroList=[...A.neuro].join(', ')||'nenhum';
+  document.getElementById('report').innerHTML=`<div class="rtitle">Encaminhamento de triagem</div><div class="rrow"><span class="rk">Paciente</span><span class="rv">${nome}, ${idade} anos · ${cad.sexo||'—'}</span></div><div class="rrow"><span class="rk">Microárea</span><span class="rv">${micro}</span></div><div class="rrow"><span class="rk">Protocolo</span><span class="rv">HAN-${Math.floor(Math.random()*9000+1000)}</span></div><div class="rrow"><span class="rk">Escore</span><span class="rv">${score}/14 — ${verdict}</span></div><div class="rrow"><span class="rk">Conduta</span><span class="rv">${cond}</span></div><div class="rrow"><span class="rk">Lesões (mapa)</span><span class="rv">${markers.length} marcada(s)</span></div><div class="rrow"><span class="rk">Regiões</span><span class="rv">${markers.length?markers.map((m,i)=>'Ponto '+(i+1)+': '+m.region).join(' · '):'—'}</span></div><div class="rrow"><span class="rk">Contato</span><span class="rv">${cad.contato==='1'?'Sim':cad.contato==='0'?'Não':'Não sabe'}</span></div><div class="sigrow">Sensibilidade: ${sensFlag?'diminuída':'preservada'} · Neuro: ${neuroList}<br>Origem: busca ativa domiciliar (ACS) · ${now.toLocaleDateString('pt-BR')}</div>`;
+  show('result');animateDonut(score);
+}
+function animateDonut(score){const val=document.getElementById('donutVal'),num=document.getElementById('scoreNum');const target=ARC*Math.min(score/MAX,1);if(matchMedia('(prefers-reduced-motion:reduce)').matches){val.setAttribute('stroke-dasharray',target+' 999');num.textContent=score;return;}val.setAttribute('stroke-dasharray','0 999');const t0=performance.now(),dur=850;(function f(t){const p=Math.min((t-t0)/dur,1),e=1-Math.pow(1-p,3);val.setAttribute('stroke-dasharray',(target*e)+' 999');num.textContent=Math.round(score*e);if(p<1)requestAnimationFrame(f);else num.textContent=score;})(t0);}
+function onPhoto(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{photoData=ev.target.result;const img=document.getElementById('preview');img.src=photoData;img.classList.remove('hidden');document.getElementById('capIc').classList.add('hidden');document.getElementById('capText').classList.add('hidden');document.getElementById('retake').classList.remove('hidden');};r.readAsDataURL(f);}
+function updateResultPhoto(){
+  const resultPhoto=document.getElementById('resultPhoto'),placeholder=document.getElementById('resultPhotoPlaceholder'),count=document.getElementById('resultLesionCount'),regions=document.getElementById('resultRegions');
+  if(count)count.textContent=markers.length;
+  if(regions)regions.innerHTML=markers.length?markers.map((m,i)=>'<span class="region-pill"><i></i>Ponto '+(i+1)+' - '+m.region+'</span>').join(''):'<span class="region-empty">Nenhuma região selecionada</span>';
+  if(!resultPhoto||!placeholder)return;
+  if(photoData){resultPhoto.src=photoData;resultPhoto.classList.remove('hidden');placeholder.classList.add('hidden');}
+  else{resultPhoto.removeAttribute('src');resultPhoto.classList.add('hidden');placeholder.classList.remove('hidden');}
+}
+function openPhotoModal(){
+  if(!photoData)return;
+  const modal=document.getElementById('photoModal'),img=document.getElementById('modalPhoto');
+  img.src=photoData;modal.classList.remove('hidden');
+}
+function closePhotoModal(e){
+  if(e&&e.target&&e.currentTarget!==e.target&&e.target.className!=='close')return;
+  document.getElementById('photoModal').classList.add('hidden');
+}function compartilhar(){const txt=document.getElementById('report').innerText;if(navigator.share){navigator.share({title:'Encaminhamento HanSina',text:txt}).catch(()=>{});}else{navigator.clipboard.writeText(txt);alert('Encaminhamento copiado. Cole no sistema da UBS.');}}
+function reiniciar(){A.sens={};A.skin={};A.neuro.clear();A.nerve.clear();cad.sexo='';cad.contato='x';photoData=null;markers.forEach(m=>m.el.remove());markers=[];document.getElementById('mapCount').textContent='0';document.querySelectorAll('.seg button,.chip-t,.opt').forEach(b=>b.classList.remove('on','sel'));document.getElementById('consent').classList.remove('on');['f_nome','f_idade','f_micro','f_tel'].forEach(id=>document.getElementById(id).value='');document.getElementById('f_data').valueAsDate=new Date();document.getElementById('cadNext').disabled=true;document.getElementById('calcBtn').disabled=true;document.getElementById('preview').classList.add('hidden');document.getElementById('capIc').classList.remove('hidden');document.getElementById('capText').classList.remove('hidden');document.getElementById('retake').classList.add('hidden');document.getElementById('photo').value='';document.getElementById('donutVal').setAttribute('stroke-dasharray','0 999');document.getElementById('scoreNum').textContent='0';updateResultPhoto();document.getElementById('advNerve').classList.remove('open');show('home');}
+function show(name){['home','cad','foto','mapa','sinais','result'].forEach(v=>document.getElementById('v_'+v).classList.toggle('hidden',v!==name));window.scrollTo(0,0);}
+renderSens();renderSkin();renderChips();
+</script>
+</body>
+</html>
